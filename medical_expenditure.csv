@@ -1,0 +1,67 @@
+﻿Year,2020,2019,2018,2017,2016
+Alabama,9280,8741,8343,8154,7968
+Alaska,13642,13226,12695,12303,11761
+Arizona,8756,8145,7816,7539,7189
+Arkansas,9338,8853,8545,8409,8079
+California,10299,9628,9069,8594,8325
+Colorado,8583,8286,7998,7615,7323
+Connecticut,12489,11831,11378,10989,10705
+Delaware,12899,12213,11771,11444,10933
+District of Columbia,14381,13934,13487,13131,12851
+Florida,9865,9490,9148,8814,8519
+Georgia,8758,8243,7844,7605,7353
+Hawaii,10291,9555,8932,8496,8041
+Idaho,8148,7723,7444,7257,6974
+Illinois,10190,9496,9118,8849,8630
+Indiana,10517,9927,9297,9015,8776
+Iowa,9789,9193,8812,8525,8464
+Kansas,9408,8745,8381,8060,7845
+Kentucky,10257,9744,9332,8959,8611
+Louisiana,10515,9657,9217,8984,8542
+Maine,12077,11488,10950,10399,10018
+Maryland,10839,10248,9934,9592,9321
+Massachusetts,13319,12729,12215,11746,11490
+Michigan,9897,9532,9142,8940,8707
+Minnesota,10846,10510,10174,9782,9540
+Mississippi,9394,8745,8417,8392,8170
+Missouri,9921,9431,9032,8824,8608
+Montana,10212,9808,9354,9030,8680
+Nebraska,10514,9917,9492,9189,8943
+Nevada,8348,8114,7892,7642,7377
+New Hampshire,11793,11310,10974,10573,10157
+New Jersey,11868,11264,10665,10340,9979
+New Mexico,8902,8459,8154,7973,7717
+New York,14007,12932,12098,11558,10927
+North Carolina,8917,8619,8285,8105,7886
+North Dakota,11301,10653,10269,9961,9682
+Ohio,10478,10173,9627,9400,9062
+Oklahoma,9444,8923,8625,8382,8132
+Oregon,10071,9635,9168,8827,8699
+Pennsylvania,11603,11175,10910,10342,9980
+Rhode Island,11694,10988,10464,10290,10159
+South Carolina,8766,8345,7975,7855,7669
+South Dakota,12495,11627,11086,10440,10046
+Tennessee,9336,8827,8565,8485,8065
+Texas,8406,8028,7711,7572,7393
+Utah,7522,7193,7008,6628,6398
+Vermont,12756,12159,11797,11521,11246
+Virginia,9195,8826,8425,8176,7987
+Washington,9265,8964,8588,8278,8097
+West Virginia,12769,11951,11337,11017,10488
+Wisconsin,9982,9652,9244,9019,8809
+Wyoming,10989,10111,9787,9496,8976
+,,,,,
+Notes,,,,,
+"The Centers for Medicare and Medicaid Services (CMS) Office of the Actuary produces Health Expenditures by State of Residence and Health Expenditures by State of Provider every five years. The State Health Expenditure Accounts are a subcomponent of the National Health Expenditure Accounts (NHEA), the official government estimates of health spending in the United States.  ",,,,,
+,,,,,
+Additional information on data and methods is available [here.](http://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/NationalHealthExpendData/NationalHealthAccountsStateHealthAccountsResidence.html)  ,,,,,
+,,,,,
+"For additional analysis of these data, please see Health Affairs article, [""Health Spending by State, 1991-2014: Measuring Per Capita Spending by Payer and Programs""](http://content.healthaffairs.org/content/early/2017/06/13/hlthaff.2017.0416).",,,,,
+,,,,,
+Sources,,,,,
+"Centers for Medicare & Medicaid Services, Office of the Actuary, National Health Statistics Group. [National Health Expenditure Data: Health Expenditures by State of Residence](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/NationalHealthExpendData/NationalHealthAccountsStateHealthAccountsResidence.html), August 2022.",,,,,
+,,,,,
+Definitions,,,,,
+"*Health Spending Per Capita* includes spending for all privately and publicly funded personal health care services and products (hospital care, physician services, nursing home care, prescription drugs, etc.) by state of residence (aggregate spending divided by population). Hospital spending is included and reflects the total net revenue (gross charges less contractual adjustments, bad debts, and charity care). Costs such as insurance program administration, research, and construction expenses are not included in this total.",,,,,
+,,,,,
+Title: Health Care Expenditures per Capita by State of Residence | KFF,,,,,

@@ -1,0 +1,485 @@
+---
+title: "proposal"
+author: "Elena Li and Claire Zhang"
+date: "2024-04-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(gridExtra)
+```
+
+
+# Exploratory Data
+```{r}
+## read in data
+
+d2017 <- read_excel("/Users/clairezhang/Desktop/Stat 37400/Project/abortion2017.xlsx", range = NULL, col_names = TRUE)
+
+# Identify columns with numeric data
+numeric_cols <- sapply(d2017, is.numeric)
+# Convert numeric columns to character
+d2017[, numeric_cols] <- lapply(d2017[, numeric_cols], as.character)
+d2017 <- d2017 %>%
+  mutate_all(~na_if(., "--"))
+d2017
+
+d2018 <- read_excel("/Users/clairezhang/Desktop/Stat 37400/Project/abortion2018.xlsx", range = NULL, col_names = TRUE)
+
+# Identify columns with numeric data
+numeric_cols <- sapply(d2018, is.numeric)
+# Convert numeric columns to character
+d2018[, numeric_cols] <- lapply(d2018[, numeric_cols], as.character)
+d2018 <- d2018 %>%
+  mutate_all(~na_if(., "--"))
+d2018
+
+d2019 <- read_excel("/Users/clairezhang/Desktop/Stat 37400/Project/abortion2019.xlsx", range = NULL, col_names = TRUE)
+# Identify columns with numeric data
+numeric_cols <- sapply(d2019, is.numeric)
+# Convert numeric columns to character
+d2019[, numeric_cols] <- lapply(d2019[, numeric_cols], as.character)
+d2019 <- d2019 %>%
+  mutate_all(~na_if(., "--"))
+d2019
+
+d2020 <- read_excel("/Users/clairezhang/Desktop/Stat 37400/Project/abortion2020.xlsx", range = NULL, col_names = TRUE)
+# Identify columns with numeric data
+numeric_cols <- sapply(d2020, is.numeric)
+# Convert numeric columns to character
+d2020[, numeric_cols] <- lapply(d2020[, numeric_cols], as.character)
+d2020 <- d2020 %>%
+  mutate_all(~na_if(., "--"))
+d2020
+```
+
+
+```{r}
+state_names <- tolower(sort(c(state.name, "District of Columbia")))
+state <- data.frame(
+  region = state_names,
+  value = rep(0, length(state_names))
+  )
+restrictive <- c("ohio", "indiana", "kentucky", "tennessee", "georgia", "alabama", "mississippi", "louisiana", "oklahoma", "arkansas", "missouri", "nebraska", "south dakota", "north dakota", "wyoming", "utah", "idaho")
+
+protected <- c("california", "nevada", "illinois", "maine", "vermont", "new york", "rhode island", "new jersey", "hawaii")
+
+for (i in 1:nrow(state)){
+  if (state$region[i] %in% restrictive){
+    state$value[i] = 1
+  }
+  else if (state$region[i] %in% protected){
+    state$value[i] = -1
+  }
+}
+
+# Get state boundaries data
+state_map <- map_data("state")
+
+# Merge count data with state boundaries
+state_data_map <- merge(state_map, state, by = "region", all.x = TRUE)
+
+# Plot heatmap on the map
+ggplot(state_data_map, aes(x = long, y = lat, group = group, fill = as.factor(value))) +
+  geom_polygon(color = "white") +
+  coord_map() +
+  scale_fill_manual(values = c("-1" = "lightgreen", "1" = "red"), 
+                    name = "",
+                    labels = c("-1" = "Protected/expanded access", "1" = "Passed restrictive policy")) +
+  theme_void()
+```
+
+```{r}
+# response variable function
+proportion <- function(data){
+  prop <- as.integer(data$'Total by location of service')
+  return(prop[1:51]/prop[52])
+}
+
+
+# predictor variable function
+diag <- function(data){
+  prop <- rep(0, 51)
+  for (i in 1:(51)){
+    if (is.na(data[i,i+1])){
+      prop[i] <- 0
+    }
+    else{
+      prop[i] <- as.integer(d2017[i,i+1])
+    }
+  }
+  return(prop/sum(prop))
+}
+```
+
+```{r}
+X2017 <- as.vector(proportion(d2017))
+X2018 <- as.vector(proportion(d2018))
+X2019 <- as.vector(proportion(d2019))
+X2020 <- as.vector(proportion(d2020))
+```
+
+```{r}
+plot_porp <- function(porp_data) {
+  state_names <- tolower(sort(c(state.name, "District of Columbia")))
+  state_data <- data.frame(
+    region = state_names,
+    porp = porp_data
+    )
+
+  # Get state boundaries data
+  state_map <- map_data("state")
+
+  # Merge count data with state boundaries
+  state_data_map <- merge(state_map, state_data, by = "region", all.x = TRUE)
+
+  # Plot heatmap on the map
+  ggplot(state_data_map, aes(x = long, y = lat, group = group, fill = porp)) +
+    geom_polygon(color = "white") +
+    coord_map() +
+    scale_fill_gradient(low = "lightblue", high = "darkblue") +
+    theme_void()
+  }
+```
+
+
+```{r}
+library(gridExtra)
+plot2017 <- plot_porp(X2017) +
+    labs(title = "Proportion of Abortions per State in 2017", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+plot2018 <- plot_porp(X2018) +
+    labs(title = "Proportion of Abortions per State in 2018", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+plot2019 <- plot_porp(X2019) +
+    labs(title = "Proportion of Abortions per State in 2019", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+plot2020 <- plot_porp(X2020) +
+    labs(title = "Proportion of Abortions per State in 2020", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+
+grid.arrange(plot2017, plot2018, plot2019, plot2020, nrow = 2, ncol = 2)
+```
+
+```{r}
+X2018_2017 <- X2018-X2017
+X2019_2018 <- X2019-X2018
+X2020_2019 <- X2020-X2019
+```
+
+```{r}
+plotX2018_2017 <- plot_porp(X2018_2017) +
+    labs(title = "Difference in Proportion of Abortions per State (2018-2017)", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+plotX2019_X2018 <- plot_porp(X2019_2018) +
+    labs(title = "Difference in Proportion of Abortions per State (2019-2018)", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+plotX2020_X2019 <- plot_porp(X2020_2019) +
+    labs(title = "Difference in Proportion of Abortions per State (2020-2019)", fill = "Proportion") +
+  theme(plot.title = element_text(size = 9))
+
+grid.arrange(plotX2018_2017, plotX2019_X2018, plotX2020_X2019, nrow = 2, ncol = 2)
+```
+
+```{r}
+state_names <- tolower(sort(c(state.name, "District of Columbia")))
+state_names
+```
+
+
+```{r}
+
+df <- data.frame("X2017" = X2017, "X2018" = X2018, "X2019" = X2019, "X2020" = X2020)
+
+abortion_data <- data.frame(
+  Year = c(2017, 2017, 2017, 2017, 2018, 2018, 2018, 2018, 2019, 2019, 2019, 2019, 2020, 2020, 2020, 2020),
+  State = c("IL", "MO", "KY", "IN", "IL", "MO", "KY", "IN", "IL", "MO", "KY", "IN", "IL", "MO", "KY", "IN"),
+  Abortions = c(df$X2017[14], df$X2017[26], df$X2017[18], df$X2017[15], df$X2018[14], df$X2018[26], df$X2018[18], df$X2018[15],df$X2019[14], df$X2019[26], df$X2019[18], df$X2019[15], df$X2020[14], df$X2020[26], df$X2020[18], df$X2020[15])
+)
+
+bar_plot <- ggplot(abortion_data, aes(x = Year, y = Abortions, fill = State)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = sprintf("%.2f", Abortions)), vjust = -0.5, position = position_dodge(width = 0.9)) +  # Add formatted numbers on top
+  labs(title = "Proportion of Abortions per Year by State", x = "Year", y = "Number of Abortions") +
+  theme_minimal()
+
+print(bar_plot)
+```
+
+
+# Kernel
+```{r}
+# Read Medical expenditure data
+medical = read.csv("medical_expenditure.csv")
+medical <- medical[1:51,]
+m2017 <- medical$X2017
+m2018 <- medical$X2018
+m2019 <- medical$X2019
+m2020 <- medical$X2020
+
+medical_matrix <- function(med) {
+  # Initialize the matrix with NA values
+  result_matrix <- matrix(NA, nrow = length(med), ncol = length(med))
+  
+  # Populate the matrix
+  for (i in 1:length(med)) {
+    for (j in 1:length(med)) {
+      result_matrix[i, j] <- 1 / (med[i] - med[j])
+      
+      # Check for infinity and replace with 1
+      if (is.infinite(result_matrix[i, j])) {
+        result_matrix[i, j] <- 1
+      }
+    }
+  }
+  
+  # Return the final matrix
+  return(result_matrix)
+}
+```
+
+
+```{r}
+smoothed_med_2018 <-(2*pi**(-1/2))*exp((-1/2)*t(medical_matrix(m2018)) %*% medical_matrix(m2018))
+smoothed_med_2019 <-(2*pi**(-1/2))*exp((-1/2)*t(medical_matrix(m2019)) %*% medical_matrix(m2019))
+```
+
+
+```{r}
+# Distance
+state_loc = read.csv("states_location.csv")
+
+distance_kernel <- function(state_loc, h){
+  latitude <- state_loc$latitude
+  longitude <- state_loc$longitude
+
+  n = nrow(state_loc)
+
+  dist_matrix <- matrix(NA, nrow = n, ncol = n)
+
+  for (i in 1:n) {
+    for (j in 1:n) {
+      lat1 <- latitude[i]
+      lon1 <- longitude[i]
+      lat2 <- latitude[j]
+      lon2 <- longitude[j]
+      coords <- matrix(c(lat1, lon1, lat2, lon2), ncol = 2)
+      dist_matrix[i, j] <- dist(coords)
+      }
+    }
+
+  dist_matrix <- dist_matrix/sum(dist_matrix) #weighted so it sums to 1
+
+  smoothed_dist <-(2*pi**(-1/2))*exp((-1/(2*h))*t(dist_matrix)%*%dist_matrix)
+  
+  return (smoothed_dist)
+}
+
+```
+
+```{r}
+smoothed_dist <- distance_kernel(state_loc, h=1)
+
+# multiply kernels and scale
+kernel_2018 <- smoothed_dist%*%smoothed_med_2018
+kernel_2018 <- kernel_2018/sum(kernel_2018)
+
+kernel_2019 <- smoothed_dist%*%smoothed_med_2019
+kernel_2019 <- kernel_2019/sum(kernel_2019)
+```
+
+```{r}
+library(reshape2)
+kernel_heatmap <- function(data){
+  df_melt <- melt(data)
+  colnames(df_melt) <- c("Row", "Column", "Value")
+
+  # Create the heatmap
+  heatmap_plot <- ggplot(df_melt, aes(x = Column, y = Row, fill = Value)) +
+    geom_tile(color = "white") +
+    scale_fill_gradientn(colors = c("white", "lightblue", "blue")) +
+    theme_minimal() +
+    scale_y_reverse()  # Reverse the y-axis to match matrix layout
+    
+  return(heatmap_plot)
+}
+
+kernelplot1 <- kernel_heatmap(smoothed_dist)  +
+    labs(title = "Heatmap of Adjacency Kernel") 
+kernelplot2 <-kernel_heatmap(kernel_2018)  +
+    labs(title = "Heatmap of Affordability Kernel") 
+
+grid.arrange(kernelplot1, kernelplot2, nrow = 2, ncol = 2)
+```
+
+
+```{r}
+james_stein <- function (alpha){
+  #Calculating James Stein
+  data_pre <- alpha
+  means <- colMeans(data_pre)
+  n <- nrow(data_pre)
+  p <- ncol(data_pre)
+  sample_var <- apply(data_pre, 2, var)
+
+  # James-Stein estimator
+  shrinkage_factor <- max(0, 1 - ((p - 2) / (n * sum(sample_var / means^2))))
+  js_estimates <- shrinkage_factor * data_pre
+
+  return(js_estimates)
+}
+```
+
+
+```{r}
+plot_porp <- function(porp_data) {
+  state_names <- tolower(sort(c(state.name, "District of Columbia")))
+  state_data <- data.frame(
+    region = state_names,
+    porp = porp_data
+    )
+
+  # Get state boundaries data
+  state_map <- map_data("state")
+
+  # Merge count data with state boundaries
+  state_data_map <- merge(state_map, state_data, by = "region", all.x = TRUE)
+
+  # Plot heatmap on the map
+  ggplot(state_data_map, aes(x = long, y = lat, group = group, fill = porp)) +
+    geom_polygon(color = "white") +
+    coord_map() +
+    scale_fill_gradient(low = "lightblue", high = "darkblue") +
+    theme_void()
+  }
+```
+
+
+```{r}
+big_function <- function(yr0,yr1, yr2, med1, med2, smoothed_dist, h1, h2, print){
+  # data
+  X0 <- as.vector(diag(yr0))
+  X1 <- as.vector(diag(yr1))
+  Y1 <- as.vector(proportion(yr1))
+  Y2 <- as.vector(proportion(yr2))
+  
+  # Kernel
+  smoothed_med_1 <-(2*pi**(-1/2))*exp((-1/(2*h1))*t(medical_matrix(med1)) %*% medical_matrix(med1))
+  smoothed_med_2 <-(2*pi**(-1/2))*exp((-1/(2*h1))*t(medical_matrix(med2)) %*% medical_matrix(med2))
+  state_loc = read.csv("states_location.csv")
+  smoothed_dist <- distance_kernel(state_loc, h2)
+    
+  kernel_1 <- smoothed_dist%*%smoothed_med_1
+  kernel_1 <- kernel_1/sum(smoothed_med_1)
+
+  kernel_2 <- smoothed_dist%*%smoothed_med_2
+  kernel_2 <- kernel_2/sum(smoothed_med_2)
+
+  X <- kernel_1%*%X0
+  Y <- Y1
+  alpha <- Y/X
+  
+  js_estimates <- james_stein(alpha)
+  
+  pred_2 <-js_estimates*kernel_2%*%X1
+  
+  MSE <- (1/51)*sum((Y2-pred_2)**2)
+  
+  # plots + hypothesis test
+  if (print=="Y"){
+    # plots
+    plot1 <- plot_porp(pred_2) +
+      labs(title = "Predicted Proportion of Abortions per State in 2019", fill = "Proportion") +
+      theme(plot.title = element_text(size = 9))
+    plot2 <- plot_porp(Y2-pred_2) +
+      labs(title = "Difference between Actual and Predicted Proportions in 2019", fill = "Proportion") +
+      theme(plot.title = element_text(size = 9))
+    
+    grid.arrange(plot1, plot2, nrow = 1, ncol = 2) 
+    
+    df <- data.frame("actual" = Y2, "predicted" = pred_2)
+    sorted_df <- df[order(df$actual), ]
+    
+    plot(df$actual, df$predicted, 
+         xlab = "Actual Proportion",
+         ylab = "Predicted Proportion",
+         main = "Actual vs Predicted Proportion of Abortions", 
+         pch = 16,
+         col = "blue",
+         xlim = c(0, 0.13),
+         ylim = c(0, 0.13)
+    )
+    abline(a = 0, b = 1, col = "red", lty = 2)
+
+    Residuals <- Y2-pred_2
+    
+    hist(Residuals)
+
+    # hypothesis test for illinois
+    d <- Residuals[14]
+    se <- sqrt(Y2[14]*(1-Y2[14])+pred_2[14]*(1-pred_2[14]))
+    z <- d/se
+    cat("The Z-score for illinois is", z, "\n")
+  }
+  
+  return(MSE)
+}
+
+```
+
+```{r}
+h1 <- seq(0.01, 0.5, by = 0.01)
+h2 <- seq(0.01, 0.5, by = 0.01)
+
+df <- expand.grid(h1=h1, h2 = h2)
+df$cv_score = rep(0, nrow(df))
+
+for (i in 1:nrow(df)){
+  h1 <- df$h1[i]
+  h2 <- df$h2[i]
+  
+  df$cv_score[i] <- big_function(d2017, d2018, d2019, m2018, m2019, smoothed_dist, h1, h2, print="N")
+}
+```
+
+
+```{r}
+ggplot(df, aes(x = h1, y = h2, fill = cv_score)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Value") +
+  theme_minimal() +
+  labs(title = "Cross Validation Plot",
+       x = "Bandwidth of affordability kernel",
+       y = "Bandwidth of adjacency kernel")
+```
+
+```{r}
+index <- which.min(df$cv_score)
+optimal_h1 <- df$h1[index]
+optimal_h2 <- df$h2[index]
+optimal_h1
+optimal_h2
+```
+
+
+
+```{r}
+big_function(d2017, d2018, d2019, m2018, m2019, smoothed_dist, optimal_h1, optimal_h2, print="Y")
+```
+
+
+
+
+
+
+
+
+
+
+
+
