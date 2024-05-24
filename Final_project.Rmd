@@ -422,7 +422,9 @@ big_function <- function(yr0,yr1, yr2, med1, med2, smoothed_dist, h1, h2, print)
 
     # hypothesis test for illinois
     d <- Residuals[14]
+    cat("The residual is", d, "\n")
     se <- sqrt(Y2[14]*(1-Y2[14])+pred_2[14]*(1-pred_2[14]))
+    cat("The se is", se, "\n")
     z <- d/se
     cat("The Z-score for illinois is", z, "\n")
   }
